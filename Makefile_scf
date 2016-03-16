@@ -1,0 +1,39 @@
+
+GSL_INC = /home/ngan/libraries/gsl-1.16/include
+GSL_LIB = /home/ngan/libraries/gsl-1.16/lib
+
+CC = mpicc
+
+OPTIONS = -Wall -O3
+
+scf: scf.o scf_integral.o read_snapshot.o Phi_nl.o gegenbauer.o ind.o
+	$(CC) $(OPTIONS) -o scf scf.o scf_integral.o read_snapshot.o Phi_nl.o gegenbauer.o ind.o scf.h scf_decompose.h -lgsl -lgslcblas -L$(GSL_LIB)
+
+scf_spherical: scf_spherical.o scf_integral.o read_snapshot.o Phi_nl.o gegenbauer.o ind.o
+	$(CC) $(OPTIONS) -o scf_spherical scf_spherical.o scf_integral.o read_snapshot.o Phi_nl.o gegenbauer.o ind.o scf.h scf_decompose.h -lgsl -lgslcblas -L$(GSL_LIB)
+
+read_snapshot.o: read_snapshot.c scf_decompose.h
+	$(CC) $(OPTIONS) -c read_snapshot.c
+
+ind.o: ind.c
+	$(CC) $(OPTIONS) -c ind.c
+
+scf.o : scf.c scf.h scf_decompose.h
+	$(CC) $(OPTIONS) -c scf.c -I$(GSL_INC)
+
+scf_spherical.o : scf_spherical.c scf.h scf_decompose.h
+	$(CC) $(OPTIONS) -c scf_spherical.c -I$(GSL_INC)
+
+scf_integral.o: scf_integral.c scf.h scf_decompose.h
+	$(CC) $(OPTIONS) -c scf_integral.c -I$(GSL_INC)
+    
+Phi_nl.o: Phi_nl.c
+	$(CC) $(OPTIONS) -c Phi_nl.c -I$(GSL_INC)
+	
+gegenbauer.o: gegenbauer.c
+	$(CC) $(OPTIONS) -c gegenbauer.c
+	
+clean:
+	rm -f *.o *~
+	
+	
